@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 // Middleware
-app.use((req, res, next) => {
+app.use((_req, _res, next) => {
   console.log("Request received");
   next();
 });
@@ -49,6 +49,7 @@ app.post("/students", (req, res) => {
   res.json(students);
 });
 
+// Catch error
 app.get("*", (_req, res) => {
   res.status(404).send("Page not found");
 });
