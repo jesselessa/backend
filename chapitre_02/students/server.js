@@ -46,7 +46,7 @@ app.get("/students", (_req, res) => {
 
 app.post("/students", (req, res) => {
   students.push(req.body);
-  res.send(students);
+  res.json(students);
 });
 
 app.get("*", (_req, res) => {
