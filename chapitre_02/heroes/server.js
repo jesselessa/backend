@@ -16,8 +16,10 @@ function debug(_req, _res, next) {
 }
 // Function transformName
 function transformName(req, _res, next) {
-  req.body.name = req.body.name.toLowerCase();
-  next;
+  if (req.body.name) {
+    req.body.name = req.body.name.toLowerCase();
+    next;
+  }
 }
 
 const superHeroes = [
@@ -50,7 +52,9 @@ const superHeroes = [
   },
 ];
 
-// Route - All heroes
+// ROUTES
+
+// All heroes
 app.get("/heroes", debug, (_req, res) => {
   res.json(superHeroes);
 });
@@ -72,7 +76,7 @@ app.get("/heroes/:name/powers", debug, (req, res) => {
 });
 
 // Add hero to list of superheroes
-app.post("/heroes", debug, transformName, (req, res) => {
+app.post("/heroes", debug, transformName, (req, res, _) => {
   superHeroes.push({
     // id: superheroes.length + 1,
     name: req.body.name,
@@ -85,6 +89,18 @@ app.post("/heroes", debug, transformName, (req, res) => {
   res.json({
     message: "OK, hero added",
     superHeroes,
+  });
+});
+
+// Add a power to a super hero
+app.patch("/heroes/:name/powers", (req, res, _) => {
+  const foundSuperHero = superHeroes.find((hero) => {
+    return hero.name === req.params.name;
+  });
+  superHeroes.power.push(req.body.power);
+  res.json({
+    message: "Power added !",
+    foundSuperHero,
   });
 });
 
