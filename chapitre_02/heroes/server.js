@@ -14,6 +14,11 @@ function debug(_req, _res, next) {
   console.log("Request received");
   next();
 }
+// Function transformName
+function transformName(req, _res, next) {
+  req.body.name = req.body.name.toLowerCase();
+  next;
+}
 
 const superHeroes = [
   {
@@ -67,7 +72,7 @@ app.get("/heroes/:name/powers", debug, (req, res) => {
 });
 
 // Add hero to list of superheroes
-app.post("/heroes", debug, (req, res) => {
+app.post("/heroes", debug, transformName, (req, res) => {
   superHeroes.push({
     // id: superheroes.length + 1,
     name: req.body.name,
