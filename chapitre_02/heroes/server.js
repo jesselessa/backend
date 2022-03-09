@@ -1,26 +1,9 @@
-// import express, { json } from "express";
+// Use Express module
 const express = require("express");
+// Use Path module for working with file and directory paths
 const path = require("path");
-
+// Call the function "express()" in Express and put new Express application inside the app variable
 const app = express();
-
-// Communicate with server in JSON
-app.use(express.json());
-
-app.use(express.static(path.join(__dirname, "public")));
-
-// Function debug
-function debug(_req, _res, next) {
-  console.log("Request received");
-  next();
-}
-// Function transformName
-function transformName(req, _res, next) {
-  if (req.body.name) {
-    req.body.name = req.body.name.toLowerCase();
-    next;
-  }
-}
 
 const superHeroes = [
   {
@@ -52,64 +35,121 @@ const superHeroes = [
   },
 ];
 
+// Middlewares
+function debug(_req, _res, next) {
+  console.log("Request received");
+  next();
+}
+
+function transformName(req, _res, next) {
+  if (req.body.name) {
+    req.body.name = req.body.name.toLowerCase();
+    next;
+  }
+}
+
+function findHero(req, _res, next) {
+  const hero = superHeroes.find((hero) => {
+    // Iron Man -> iron man -> iron-man
+    return (
+      req.params.name.toLowerCase().replace(" ", "-") ===
+      hero.name.toLowerCase().replace(" ", "-")
+    );
+  });
+
+  req.hero = hero;
+  next();
+}
+
+function protect() {
+  // Check if user is logged
+  return res.status(401).send("Login first");
+}
+
+// Other syntax : app.use(express.json(), debug);
+
+// Recognize req.body as a JSON object
+app.use(express.json());
+app.use(debug);
+
+// Use my image from my file "public"
+app.use(express.static(path.join(__dirname, "public")));
+
 // ROUTES
 
 // All heroes
-app.get("/heroes", debug, (_req, res) => {
+app.get("/heroes", (_req, res) => {
   res.json(superHeroes);
 });
 
 // Heroes by name
-app.get("/heroes/:name", debug, (req, res) => {
-  const hero = superHeroes.find((hero) => {
-    return req.params.name === hero.name;
-  });
-  res.json(hero);
+app.get("/heroes/:name", findHero, (req, res) => {
+  res.json(req.hero);
 });
+// Other syntax - app.get("/heroes/:name", (req, res) => {
+//   const hero = superHeroes.find((hero) => {
+//     return req.params.name === hero.name;
+//   });
+//   res.json(hero);
+// });
 
 // Heroes'powers
-app.get("/heroes/:name/powers", debug, (req, res) => {
-  const powers = superHeroes.find((hero) => {
-    return req.params.name === hero.name;
-  });
-  res.json(powers.power);
+app.get("/heroes/:name/powers", findHero, (req, res) => {
+  res.json(req.hero.power);
+});
+// Other syntax - app.get("/heroes/:name/powers", (req, res) => {
+//   const hero = superHeroes.find((hero) => {
+//     return req.params.name === hero.name;
+//   });
+//   res.json(hero.power);
+// });
+
+// Catch error dans get()
+app.get("*", (_req, res) => {
+  res.status(404).send("Not found");
 });
 
 // Add hero to list of superheroes
-app.post("/heroes", debug, transformName, (req, res, _) => {
-  superHeroes.push({
-    // id: superheroes.length + 1,
-    name: req.body.name,
-    power: req.body.power,
-    color: req.body.color,
-    isAlive: req.body.isAlive,
-    age: req.body.age,
-    image: req.body.image || "http://localhost:8000/images/superhero.png",
-  });
-  res.json({
+
+app.post("/heroes", protect, transformName, (req, res, _) => {
+  superHeroes.push(req.body);
+  // Other syntax - superHeroes.push({
+  //   name: req.body.name,
+  //   power: req.body.power,
+  //   color: req.body.color,
+  //   isAlive: req.body.isAlive,
+  //   age: req.body.age,
+  //   image: req.body.image || "http://localhost:8000/images/superhero.png",
+  // });
+  res.status(201).json({
     message: "OK, hero added",
     superHeroes,
   });
 });
 
 // Add a power to a super hero
-app.patch("/heroes/:name/powers", (req, res, _) => {
-  const foundSuperHero = superHeroes.find((hero) => {
-    return hero.name === req.params.name;
-  });
-  superHeroes.power.push(req.body.power);
-  res.json({
-    message: "Power added !",
-    foundSuperHero,
-  });
-});
+app.patch("/heroes/:name/powers", findHero, (req, res) => {
+  const hero = req.hero;
 
-// Catch error
-app.get("*", debug, (_req, res) => {
-  res.status(404).send("Page not found");
+  hero.power.push(req.body.power);
+
+  res.json({
+    message: "OK,power added",
+    hero,
+  });
 });
+// Other syntax - app.patch("/heroes/:name/powers", (req, res, _) => {
+//   const hero = superHeroes.find((hero) => {
+//     return hero.name === req.params.name;
+//   });
+//   superHeroes.power.push(req.body.power);
+//   res.json({
+//     message: "Power added !",
+//     hero,
+//   });
+// });
 
 // Start the server
 app.listen(8000, () => {
-  console.log("Listening");
+  console.log("Listening...");
 });
