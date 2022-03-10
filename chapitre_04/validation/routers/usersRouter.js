@@ -19,9 +19,15 @@ const schema = Joi.object({
 const users = [
   {
     username: "Jess",
-    email: "mail@mail.com",
+    email: "jess@mail.com",
     age: 20,
     city: "Paris",
+  },
+  {
+    username: "Paul",
+    email: "paul@mail.com",
+    age: 33,
+    city: "Lyon",
   },
 ];
 

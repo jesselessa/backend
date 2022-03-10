@@ -58,10 +58,11 @@ function findHero(req, _res, next) {
   });
 
   req.hero = hero;
+
   next();
 }
 
-function protect() {
+function protect(_req, res) {
   // Check if user is logged
   return res.status(401).send("Login first");
 }
@@ -111,7 +112,7 @@ app.get("*", (_req, res) => {
 
 // Add hero to list of superheroes
 
-app.post("/heroes", protect, transformName, (req, res, _) => {
+app.post("/heroes", /*protect*/ transformName, (req, res) => {
   superHeroes.push(req.body);
   // Other syntax - superHeroes.push({
   //   name: req.body.name,
