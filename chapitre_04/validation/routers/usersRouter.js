@@ -17,15 +17,16 @@ const schema = Joi.object({
 });
 
 const users = [
-  //   {
-  //     username: "Jess",
-  //     email: "mail@mail.com",
-  //     age: 20,
-  //     city: "Paris",
-  //   },
+  {
+    username: "Jess",
+    email: "mail@mail.com",
+    age: 20,
+    city: "Paris",
+  },
 ];
 
 // ROUTES
+
 // All users
 router.get("/", (_req, res) => {
   res.json(users);
@@ -57,6 +58,20 @@ router.get("/:username", (req, res) => {
       req.params.username.toLowerCase().replace(" ", "-") ===
       user.username.toLowerCase().replace(" ", "-")
     );
+  });
+  res.json(user);
+});
+
+// BONUSES
+
+// User's info depending on his id
+router.get("id/:id", (req, res) => {
+  return res.json(users[req.params.id - 1]);
+});
+// User's info depending on his email
+router.get("email/:email", (req, res) => {
+  const user = users.find((user) => {
+    return user.email === req.params.email;
   });
   res.json(user);
 });
