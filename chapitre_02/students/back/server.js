@@ -1,10 +1,13 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 
 // Communicate with server in JSON
 app.use(express.json());
 
-// Middleware
+// Middlewares
+app.use(cors());
+
 app.use((_req, _res, next) => {
   console.log("Request received");
   next();
