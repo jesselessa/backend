@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { createContext, useState } from "react";
 
-function App() {
+import Gallery from "./views/Gallery";
+import Homepage from "./views/Homepage";
+
+export const UsersContexts = createContext();
+
+export default function App() {
+  // a local state to store the currently selected file.
+  const [image, setImage] = useState(null);
+  const [name, setName] = useState("");
+  const [usersList, setUsersList] = useState([]);
+
+  const usersContext = {
+    image,
+    setImage,
+    name,
+    setName,
+    usersList,
+    setUsersList,
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <UsersContexts.Provider value={usersContext}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path="/" component={Homepage}></Route>
+            <Route exact path="/success" component={Gallery}></Route>
+          </Routes>
+        </BrowserRouter>
+      </UsersContexts.Provider>
     </div>
   );
 }
-
-export default App;
